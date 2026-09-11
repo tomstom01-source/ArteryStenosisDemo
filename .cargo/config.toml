@@ -1,0 +1,24 @@
+# Web (Wasm) build configuration for the Rust GDExtension.
+#
+# The extension is compiled as an Emscripten SIDE_MODULE that Godot's web
+# runtime loads dynamically. Flags follow the godot-rust "Export to Web" guide
+# (https://godot-rust.github.io/book/toolchain/export-web.html), nothreads
+# variant: no `-pthread` / `+atomics`, matching Godot's "Thread Support: Off"
+# web export (hostable without Cross-Origin Isolation headers).
+#
+# Build (see scripts/build_web.ps1, which also sets up emcc on PATH):
+#   cargo +nightly-2026-05-01 build --release --features web -Zbuild-std --target wasm32-unknown-emscripten
+
+[target.wasm32-unknown-emscripten]
+rustflags = [
+    "-C", "link-args=-sSIDE_MODULE=2",
+    "-C", "llvm-args=-enable-emscripten-cxx-exceptions=0",
+    "-Z", "default-visibility=hidden",
+    "-Z", "link-native-libraries=no",
+    # Rust 1.93+ defaults Emscripten unwinding to the wasm EH ABI, which is
+    # incompatible with Godot's web runtime (missing __cpp_exception tag
+    # import). Opt out via the legacy JS EH ABI. NOTE: this flag was removed
+    # in newer nightlies (rust-lang/rust#156928) - use the pinned toolchain
+    # nightly-2026-05-01 (last version carrying it).
+    "-Z", "emscripten-wasm-eh=false",
+]

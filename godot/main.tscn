@@ -1,0 +1,278 @@
+[gd_scene format=3 uid="uid://84h8s4qi725i"]
+
+[ext_resource type="Script" uid="uid://c521oifyi4021" path="res://scripts/ui.gd" id="1_ui"]
+[ext_resource type="Script" uid="uid://pcjcx2kg1qj0" path="res://scripts/camera_controller.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://dqxd4lxix3unl" path="res://scripts/explanation_panel.gd" id="3_explanation"]
+[ext_resource type="Script" uid="uid://bh5dk25uegtbi" path="res://scripts/perf_probe.gd" id="5_perf"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 3
+ambient_light_energy = 0.6
+
+[sub_resource type="StandardMaterial3D" id="WallMaterial"]
+transparency = 1
+cull_mode = 2
+albedo_color = Color(0.94, 0.58, 0.64, 0.12)
+roughness = 0.15
+clearcoat = 0.7
+clearcoat_roughness = 0.25
+subsurf_scatter_enabled = true
+subsurf_scatter_strength = 0.15
+
+[sub_resource type="CylinderMesh" id="WallMesh"]
+material = SubResource("WallMaterial")
+top_radius = 0.6
+bottom_radius = 0.6
+height = 4.0
+
+[node name="Main" type="Node3D" unique_id=1571169820]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=151809244]
+environment = SubResource("Environment_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1873654394]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 3, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1731362527]
+current = true
+script = ExtResource("2_camera")
+
+[node name="Artery" type="ArterySimulation" parent="." unique_id=2066233495]
+unique_name_in_owner = true
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Wall" type="MeshInstance3D" parent="Artery" unique_id=1148380757]
+mesh = SubResource("WallMesh")
+
+[node name="Blood" type="MeshInstance3D" parent="Artery" unique_id=1969344256]
+
+[node name="Plaque" type="MeshInstance3D" parent="Artery" unique_id=1346987053]
+
+[node name="ParticlesRbc" type="MultiMeshInstance3D" parent="Artery" unique_id=1430188455]
+
+[node name="ParticlesWbc" type="MultiMeshInstance3D" parent="Artery" unique_id=1430188456]
+
+[node name="ParticlesPlatelet" type="MultiMeshInstance3D" parent="Artery" unique_id=1430188457]
+
+[node name="PerfProbe" type="Node" parent="." unique_id=1370330066]
+script = ExtResource("5_perf")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=917606228]
+
+[node name="UIRoot" type="Control" parent="UI" unique_id=1969515530]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_ui")
+
+[node name="CameraHelp" type="Label" parent="UI/UIRoot" unique_id=1437489469]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 620.0
+offset_bottom = 52.0
+text = "View: left-drag rotate  |  middle/right-drag pan  |  wheel zoom"
+
+[node name="ExplanationUI" type="Control" parent="UI/UIRoot" unique_id=-1110250704]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_explanation")
+
+[node name="ExplanationToggle" type="Button" parent="UI/UIRoot/ExplanationUI" unique_id=-1826831505]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -170.0
+offset_top = 80.0
+offset_right = -20.0
+offset_bottom = 111.0
+grow_horizontal = 0
+text = "Hide explanation"
+
+[node name="AssumptionsToggle" type="Button" parent="UI/UIRoot/ExplanationUI" unique_id=-1826831506]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -365.0
+offset_top = 80.0
+offset_right = -185.0
+offset_bottom = 111.0
+grow_horizontal = 0
+text = "Hide assumptions"
+
+[node name="AssumptionsPanel" type="PanelContainer" parent="UI/UIRoot/ExplanationUI" unique_id=1917660372]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 64.0
+offset_right = 584.0
+offset_bottom = 868.0
+
+[node name="Margin" type="MarginContainer" parent="UI/UIRoot/ExplanationUI/AssumptionsPanel" unique_id=1365784327]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="AssumptionsText" type="RichTextLabel" parent="UI/UIRoot/ExplanationUI/AssumptionsPanel/Margin" unique_id=226883011]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+scroll_active = false
+
+[node name="ExplanationPanel" type="PanelContainer" parent="UI/UIRoot/ExplanationUI" unique_id=1917660371]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -520.0
+offset_top = 125.0
+offset_right = -20.0
+offset_bottom = 740.0
+grow_horizontal = 0
+
+[node name="Margin" type="MarginContainer" parent="UI/UIRoot/ExplanationUI/ExplanationPanel" unique_id=1365784325]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="ExplanationText" type="RichTextLabel" parent="UI/UIRoot/ExplanationUI/ExplanationPanel/Margin" unique_id=226883010]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+
+[node name="BottomPanel" type="PanelContainer" parent="UI/UIRoot" unique_id=1365784326]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="UI/UIRoot/BottomPanel" unique_id=1582155577]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/UIRoot/BottomPanel/Margin" unique_id=1061305307]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlaqueRow" type="HBoxContainer" parent="UI/UIRoot/BottomPanel/Margin/VBox" unique_id=1111364042]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="PlaqueTitleLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/PlaqueRow" unique_id=1950704125]
+layout_mode = 2
+text = "Plaque Accumulation:"
+
+[node name="PlaqueSlider" type="HSlider" parent="UI/UIRoot/BottomPanel/Margin/VBox/PlaqueRow" unique_id=888346260]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 4
+value = 30.0
+
+[node name="PlaqueValueLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/PlaqueRow" unique_id=1664139132]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "0%"
+
+[node name="LifestyleRow" type="HBoxContainer" parent="UI/UIRoot/BottomPanel/Margin/VBox" unique_id=1111364043]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LifestyleTitleLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/LifestyleRow" unique_id=1950704126]
+layout_mode = 2
+text = "Heart-healthy habits (MESA 0-4):"
+
+[node name="LifestyleSlider" type="HSlider" parent="UI/UIRoot/BottomPanel/Margin/VBox/LifestyleRow" unique_id=888346261]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 4.0
+
+[node name="LifestyleValueLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/LifestyleRow" unique_id=1664139133]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "0 / 4"
+
+[node name="SmokingRow" type="HBoxContainer" parent="UI/UIRoot/BottomPanel/Margin/VBox" unique_id=1111364044]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SmokingTitleLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingRow" unique_id=1950704127]
+layout_mode = 2
+text = "Cigarettes/day:"
+
+[node name="SmokingSlider" type="HSlider" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingRow" unique_id=888346262]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 40.0
+
+[node name="SmokingValueLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingRow" unique_id=1664139134]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="SmokingYearsRow" type="HBoxContainer" parent="UI/UIRoot/BottomPanel/Margin/VBox" unique_id=1111364045]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SmokingYearsTitleLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingYearsRow" unique_id=1950704128]
+layout_mode = 2
+text = "Years of smoking:"
+
+[node name="SmokingYearsSlider" type="HSlider" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingYearsRow" unique_id=888346263]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 10.0
+value = 10.0
+
+[node name="SmokingYearsValueLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/SmokingYearsRow" unique_id=1664139135]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "10 y"
+
+[node name="StatsRow" type="HBoxContainer" parent="UI/UIRoot/BottomPanel/Margin/VBox" unique_id=1652922924]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="EffectivePlaqueLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/StatsRow" unique_id=76402144]
+layout_mode = 2
+text = "Effective plaque: 0%"
+
+[node name="PeakVelocityLabel" type="Label" parent="UI/UIRoot/BottomPanel/Margin/VBox/StatsRow" unique_id=1116259938]
+layout_mode = 2
+text = "Peak velocity: 30 cm/s"

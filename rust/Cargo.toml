@@ -1,0 +1,21 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = "0.2"
+rand = "0.8"
+
+[features]
+# Web (Wasm) build: experimental-wasm(+nothreads) enables the Emscripten
+# side-module target; lazy-function-tables keeps release wasm builds small and
+# fast to link. Native builds leave this off and keep using the prebuilt API.
+web = [
+    "godot/experimental-wasm",
+    "godot/experimental-wasm-nothreads",
+    "godot/lazy-function-tables",
+]

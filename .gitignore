@@ -1,0 +1,38 @@
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Godot editor metadata (imported assets cache)
+godot/.godot/
+godot/.import/
+
+# Build artifacts (workspace-level)
+/target/
+/build/
+
+# Environment and local configuration
+.env
+.env.local
+*.local
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Visual-test artefacts and Python caches
+/artifacts/
+tests/e2e/__pycache__/
+.pytest_cache/
