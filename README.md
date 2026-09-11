@@ -41,6 +41,15 @@ powershell -File scripts\build_web.ps1     # → build\web\index.html
 python -m http.server 8000 --directory build\web
 ```
 
+## Live demo
+
+A built browser version is already on the `gh-pages` branch and can be served at:
+
+**https://tomstom01-source.github.io/ArteryStenosisDemo/**
+
+To enable it: open the repository on GitHub, go to **Settings → Pages**, choose
+**Deploy from a branch**, select the `gh-pages` branch and `/(root)`, then save.
+
 ## Tests
 
 - **Rust unit tests:** `cargo test`
