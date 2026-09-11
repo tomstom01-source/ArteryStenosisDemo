@@ -1,7 +1,7 @@
 extends Camera3D
 ## Free viewport controller for inspecting the artery from any angle.
-## Left-drag / one-finger rotates, middle/right-drag / two-finger pans,
-## and the mouse wheel / pinch zooms.
+## Left-drag / one-finger rotates, the mouse wheel zooms, and a two-finger
+## pinch/spread zooms on touch screens.
 
 @export var target_path: NodePath = NodePath("../Artery")
 @export var distance: float = 6.5
@@ -11,7 +11,6 @@ extends Camera3D
 @export var pan_sensitivity: float = 0.002
 @export var zoom_step: float = 0.75
 @export var pinch_zoom_sensitivity: float = 0.002
-@export var touch_pan_scale: float = 0.15
 @export var touch_rotation_scale: float = 0.25
 
 var focus_point := Vector3.ZERO
@@ -78,37 +77,30 @@ func _handle_screen_touch(event: InputEventScreenTouch) -> void:
 		_touches.erase(event.index)
 
 	rotating = _touches.size() == 1
-	panning = _touches.size() == 2
+	panning = false
 
 
 func _handle_screen_drag(event: InputEventScreenDrag) -> void:
 	if not _touches.has(event.index):
 		return
 
-	var previous: Dictionary = _touches.duplicate()
-	_touches[event.index] = event.position
-
 	if _touches.size() == 1:
 		yaw -= event.relative.x * rotation_sensitivity * touch_rotation_scale
 		pitch = clamp(pitch - event.relative.y * rotation_sensitivity * touch_rotation_scale, -1.45, 1.45)
 		_update_camera()
 	elif _touches.size() == 2:
+		var previous: Dictionary = _touches.duplicate()
+		_touches[event.index] = event.position
+
 		var keys := _touches.keys()
 		var old_p0: Vector2 = previous[keys[0]]
 		var old_p1: Vector2 = previous[keys[1]]
 		var new_p0: Vector2 = _touches[keys[0]]
 		var new_p1: Vector2 = _touches[keys[1]]
 
-		var old_center := (old_p0 + old_p1) * 0.5
-		var new_center := (new_p0 + new_p1) * 0.5
-		var pan_delta := new_center - old_center
-
 		var old_dist := old_p0.distance_to(old_p1)
 		var new_dist := new_p0.distance_to(new_p1)
 		var dist_delta := new_dist - old_dist
-
-		var pan_scale := distance * pan_sensitivity * touch_pan_scale
-		focus_point += (-global_transform.basis.x * pan_delta.x + global_transform.basis.y * pan_delta.y) * pan_scale
 
 		var zoom_factor := 1.0 - dist_delta * pinch_zoom_sensitivity
 		distance = clamp(distance * zoom_factor, min_distance, max_distance)
