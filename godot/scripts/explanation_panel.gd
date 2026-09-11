@@ -38,7 +38,7 @@ const ASSUMPTIONS_TEXT := """[color=#8fd6ff][b]Calibration choices (not directly
 
 [b]×1.5 smoking correction[/b] — PDAY shows smoking drives non-calcified plaque CT cannot see; the magnitude is a conservative choice, not a measured ratio.
 
-[b]Excess-only display[/b] — smoking shows only its attributable excess (10 pack-years → 18%); background accumulation is excluded.
+[b]Excess-only display[/b] — smoking shows only its attributable excess (10 pack-years -> 18%); background accumulation is excluded.
 
 [b]Stenosis shape & severity mapping[/b] — middle-40% lesion with a flat throat; 100% plaque = 75% radius reduction (Doppler-motivated). Both are conventions.
 
