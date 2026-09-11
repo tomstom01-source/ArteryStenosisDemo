@@ -1,7 +1,7 @@
 extends Camera3D
 ## Free viewport controller for inspecting the artery from any angle.
 ## Left-drag / one-finger rotates, the mouse wheel zooms, and a two-finger
-## pinch/spread zooms on touch screens.
+## pinch/spread zooms on touch screens. Touch has no pan.
 
 @export var target_path: NodePath = NodePath("../Artery")
 @export var distance: float = 6.5
@@ -10,7 +10,7 @@ extends Camera3D
 @export var rotation_sensitivity: float = 0.01
 @export var pan_sensitivity: float = 0.002
 @export var zoom_step: float = 0.75
-@export var pinch_zoom_sensitivity: float = 0.002
+@export var pinch_zoom_exponent: float = 0.35
 @export var touch_rotation_scale: float = 0.25
 
 var focus_point := Vector3.ZERO
@@ -100,11 +100,13 @@ func _handle_screen_drag(event: InputEventScreenDrag) -> void:
 
 		var old_dist := old_p0.distance_to(old_p1)
 		var new_dist := new_p0.distance_to(new_p1)
-		var dist_delta := new_dist - old_dist
 
-		var zoom_factor := 1.0 - dist_delta * pinch_zoom_sensitivity
-		distance = clamp(distance * zoom_factor, min_distance, max_distance)
-		_update_camera()
+		# Pinch/spread zoom: use the ratio of the finger span so the zoom
+		# amount is tied to how much the fingers actually move, not raw pixels.
+		if old_dist > 1.0 and new_dist > 1.0:
+			var zoom_factor := pow(old_dist / new_dist, pinch_zoom_exponent)
+			distance = clamp(distance * zoom_factor, min_distance, max_distance)
+			_update_camera()
 
 
 func _update_camera() -> void:
