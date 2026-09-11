@@ -11,7 +11,7 @@ extends Camera3D
 @export var pan_sensitivity: float = 0.002
 @export var zoom_step: float = 0.75
 @export var pinch_zoom_exponent: float = 0.35
-@export var touch_rotation_scale: float = 0.25
+@export var touch_rotation_scale: float = 0.12
 
 var focus_point := Vector3.ZERO
 # Start on the far side of the vessel so the sun sits behind the model: the
@@ -23,6 +23,9 @@ var panning := false
 
 # Active screen touches: index -> Vector2 position.
 var _touches: Dictionary = {}
+# When a two-finger gesture is active, the remaining finger after one is lifted
+# is ignored until all fingers leave the screen.
+var _ignore_remaining_drag := false
 
 
 func _ready() -> void:
@@ -76,8 +79,18 @@ func _handle_screen_touch(event: InputEventScreenTouch) -> void:
 	else:
 		_touches.erase(event.index)
 
-	rotating = _touches.size() == 1
-	panning = false
+	match _touches.size():
+		0:
+			_ignore_remaining_drag = false
+			rotating = false
+			panning = false
+		1:
+			rotating = not _ignore_remaining_drag
+			panning = false
+		2:
+			_ignore_remaining_drag = true
+			rotating = false
+			panning = false
 
 
 func _handle_screen_drag(event: InputEventScreenDrag) -> void:
@@ -85,6 +98,10 @@ func _handle_screen_drag(event: InputEventScreenDrag) -> void:
 		return
 
 	if _touches.size() == 1:
+		_touches[event.index] = event.position
+		if _ignore_remaining_drag:
+			return
+
 		yaw -= event.relative.x * rotation_sensitivity * touch_rotation_scale
 		pitch = clamp(pitch - event.relative.y * rotation_sensitivity * touch_rotation_scale, -1.45, 1.45)
 		_update_camera()
