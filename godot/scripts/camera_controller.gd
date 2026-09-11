@@ -1,6 +1,7 @@
 extends Camera3D
 ## Free viewport controller for inspecting the artery from any angle.
-## Left-drag rotates, middle/right-drag pans, and the mouse wheel zooms.
+## Left-drag / one-finger rotates, middle/right-drag / two-finger pans,
+## and the mouse wheel / pinch zooms.
 
 @export var target_path: NodePath = NodePath("../Artery")
 @export var distance: float = 6.5
@@ -9,6 +10,8 @@ extends Camera3D
 @export var rotation_sensitivity: float = 0.01
 @export var pan_sensitivity: float = 0.002
 @export var zoom_step: float = 0.75
+@export var pinch_zoom_sensitivity: float = 0.005
+@export var touch_pan_scale: float = 0.35
 
 var focus_point := Vector3.ZERO
 # Start on the far side of the vessel so the sun sits behind the model: the
@@ -17,6 +20,9 @@ var yaw := PI
 var pitch := -0.2
 var rotating := false
 var panning := false
+
+# Active screen touches: index -> Vector2 position.
+var _touches: Dictionary = {}
 
 
 func _ready() -> void:
@@ -31,6 +37,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_handle_mouse_button(event)
 	elif event is InputEventMouseMotion:
 		_handle_mouse_motion(event)
+	elif event is InputEventScreenTouch:
+		_handle_screen_touch(event)
+	elif event is InputEventScreenDrag:
+		_handle_screen_drag(event)
 
 
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
@@ -57,6 +67,50 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	elif panning:
 		var pan_scale := distance * pan_sensitivity
 		focus_point += (-global_transform.basis.x * event.relative.x + global_transform.basis.y * event.relative.y) * pan_scale
+		_update_camera()
+
+
+func _handle_screen_touch(event: InputEventScreenTouch) -> void:
+	if event.pressed:
+		_touches[event.index] = event.position
+	else:
+		_touches.erase(event.index)
+
+	rotating = _touches.size() == 1
+	panning = _touches.size() == 2
+
+
+func _handle_screen_drag(event: InputEventScreenDrag) -> void:
+	if not _touches.has(event.index):
+		return
+
+	var previous: Dictionary = _touches.duplicate()
+	_touches[event.index] = event.position
+
+	if _touches.size() == 1:
+		yaw -= event.relative.x * rotation_sensitivity
+		pitch = clamp(pitch - event.relative.y * rotation_sensitivity, -1.45, 1.45)
+		_update_camera()
+	elif _touches.size() == 2:
+		var keys := _touches.keys()
+		var old_p0: Vector2 = previous[keys[0]]
+		var old_p1: Vector2 = previous[keys[1]]
+		var new_p0: Vector2 = _touches[keys[0]]
+		var new_p1: Vector2 = _touches[keys[1]]
+
+		var old_center := (old_p0 + old_p1) * 0.5
+		var new_center := (new_p0 + new_p1) * 0.5
+		var pan_delta := new_center - old_center
+
+		var old_dist := old_p0.distance_to(old_p1)
+		var new_dist := new_p0.distance_to(new_p1)
+		var dist_delta := new_dist - old_dist
+
+		var pan_scale := distance * pan_sensitivity * touch_pan_scale
+		focus_point += (-global_transform.basis.x * pan_delta.x + global_transform.basis.y * pan_delta.y) * pan_scale
+
+		var zoom_factor := 1.0 - dist_delta * pinch_zoom_sensitivity
+		distance = clamp(distance * zoom_factor, min_distance, max_distance)
 		_update_camera()
 
 
