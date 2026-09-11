@@ -83,7 +83,7 @@ offset_left = 24.0
 offset_top = 24.0
 offset_right = 620.0
 offset_bottom = 52.0
-text = "View: left-drag / 1-finger rotate  |  right/middle-drag / 2-finger pan  |  wheel / pinch zoom"
+text = "Rotate: left-drag / 1 finger  |  Pan: right/middle-drag / 2 fingers  |  Zoom: wheel / pinch"
 
 [node name="ExplanationUI" type="Control" parent="UI/UIRoot" unique_id=-1110250704]
 layout_mode = 1

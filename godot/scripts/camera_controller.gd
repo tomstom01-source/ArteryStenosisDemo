@@ -10,8 +10,9 @@ extends Camera3D
 @export var rotation_sensitivity: float = 0.01
 @export var pan_sensitivity: float = 0.002
 @export var zoom_step: float = 0.75
-@export var pinch_zoom_sensitivity: float = 0.005
-@export var touch_pan_scale: float = 0.35
+@export var pinch_zoom_sensitivity: float = 0.002
+@export var touch_pan_scale: float = 0.15
+@export var touch_rotation_scale: float = 0.25
 
 var focus_point := Vector3.ZERO
 # Start on the far side of the vessel so the sun sits behind the model: the
@@ -88,8 +89,8 @@ func _handle_screen_drag(event: InputEventScreenDrag) -> void:
 	_touches[event.index] = event.position
 
 	if _touches.size() == 1:
-		yaw -= event.relative.x * rotation_sensitivity
-		pitch = clamp(pitch - event.relative.y * rotation_sensitivity, -1.45, 1.45)
+		yaw -= event.relative.x * rotation_sensitivity * touch_rotation_scale
+		pitch = clamp(pitch - event.relative.y * rotation_sensitivity * touch_rotation_scale, -1.45, 1.45)
 		_update_camera()
 	elif _touches.size() == 2:
 		var keys := _touches.keys()
